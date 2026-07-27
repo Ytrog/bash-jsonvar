@@ -75,14 +75,22 @@ _jv-json-encode-string() {
 _jv-encode-variable() {
 	local _jv_name=$1
 	local -n _jv_ref=$_jv_name
+	local _jv_attrs=${_jv_ref@a}
 
-	case "${_jv_ref@a}" in
+	case "$_jv_attrs" in
 		*a*) # process indexed array
 			echo -n '['
 			local _jv_value _jv_i=0
 			for _jv_value in "${_jv_ref[@]}"; do
 				((_jv_i++))
-				_jv-json-encode-string "$_jv_value"
+
+				# check member type
+				if [[ $_jv_attrs == *i* ]]; then
+					printf '%d' "$_jv_value"
+				else
+					_jv-json-encode-string "$_jv_value"
+				fi
+
 				if ((_jv_i < ${#_jv_ref[@]})); then
 					echo -n ', '
 				fi
@@ -99,7 +107,12 @@ _jv-encode-variable() {
 
 				_jv-json-encode-string "$_jv_key"
 				echo -n ': '
-				_jv-json-encode-string "$_jv_value"
+
+				if [[ $_jv_attrs == *i* ]]; then
+					printf '%d' "$_jv_value"
+				else
+					_jv-json-encode-string "$_jv_value"
+				fi
 
 				if ((_jv_i < ${#_jv_ref[@]})); then
 					echo -n ', '
@@ -236,6 +249,9 @@ else
 	declare -A test_assoc=([a]=1 [b]=2 [c]=3)
 	declare -i test_int=67
 	declare -- test_string='hello world'
+
+	declare -ai test_indexed_ints=(0 1 2 0xff foo bar baz)
+	declare -Ai test_assoc_ints=([foo]=0 [bar]=1 [baz]=0xff [bat]=foo)
 
 	jsonvar "$@"
 fi
