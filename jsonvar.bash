@@ -88,9 +88,19 @@ _jv-json-encode-number() {
 _jv-encode-variable() {
 	local _jv_name=$1
 	local -n _jv_ref=$_jv_name
-	local _jv_attrs=${_jv_ref@a}
+
+	# before looking into the variable by name using a nameref we are going
+	# to cowardly refuse to look into variables that themselves are a
+	# nameref.
+	# see https://github.com/bahamas10/bash-jsonvar/issues/6
+	local _jv_attrs
+	read -r _ _jv_attrs _ < <(declare -p "$_jv_name")
 
 	case "$_jv_attrs" in
+		*n*) # process namerefs
+			# todo maybe warn?
+			echo -n 'null'
+			;;
 		*a*) # process indexed array
 			echo -n '['
 			local _jv_value _jv_i=0
@@ -274,6 +284,8 @@ else
 
 	test_bad_int='hello world'
 	declare -i test_bad_int
+
+	declare -n test_nameref='test_indexed'
 
 	jsonvar "$@"
 fi
