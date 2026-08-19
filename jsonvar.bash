@@ -72,6 +72,19 @@ _jv-json-encode-string() {
 	printf '"%s"' "$out"
 }
 
+_jv-json-encode-number() {
+	local num=$1
+	local re='^-?([0-9]+)$'
+
+	# validate that it is a valid number
+	if [[ $num =~ $re ]]; then
+		printf '%d' "$num"
+	else
+		# perhaps print a warning to the screen?
+		printf 'null'
+	fi
+}
+
 _jv-encode-variable() {
 	local _jv_name=$1
 	local -n _jv_ref=$_jv_name
@@ -86,7 +99,7 @@ _jv-encode-variable() {
 
 				# check member type
 				if [[ $_jv_attrs == *i* ]]; then
-					printf '%d' "$_jv_value"
+					_jv-json-encode-number "$_jv_value"
 				else
 					_jv-json-encode-string "$_jv_value"
 				fi
@@ -109,7 +122,7 @@ _jv-encode-variable() {
 				echo -n ': '
 
 				if [[ $_jv_attrs == *i* ]]; then
-					printf '%d' "$_jv_value"
+					_jv-json-encode-number "$_jv_value"
 				else
 					_jv-json-encode-string "$_jv_value"
 				fi
@@ -121,7 +134,7 @@ _jv-encode-variable() {
 			echo -n '}'
 			;;
 		*i*) # process integer
-			echo -n "$_jv_ref"
+			_jv-json-encode-number "$_jv_ref"
 			;;
 		*) # anything else, it's probably a string lol
 			_jv-json-encode-string "$_jv_ref"
@@ -252,6 +265,15 @@ else
 
 	declare -ai test_indexed_ints=(0 1 2 0xff foo bar baz)
 	declare -Ai test_assoc_ints=([foo]=0 [bar]=1 [baz]=0xff [bat]=foo)
+
+	declare -a test_array_mixed_ints=(0 1 2 0xff foo bar baz)
+	declare -i test_array_mixed_ints
+
+	declare -A test_assoc_mixed_ints=([foo]=0 [bar]=1 [baz]=0xff [bat]=foo)
+	declare -i test_assoc_mixed_ints
+
+	test_bad_int='hello world'
+	declare -i test_bad_int
 
 	jsonvar "$@"
 fi
