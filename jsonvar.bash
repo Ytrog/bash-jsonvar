@@ -12,7 +12,7 @@
 
 _jv-usage() {
 	local usage
-	read -r -d '' usage <<-EOF
+	IFS=$' \n\t' read -r -d '' usage <<-EOF
 	Usage: jsonvar [-aev] [[name], ...]
 
 	Serialize bash variables to JSON output
@@ -100,7 +100,7 @@ _jv-encode-variable() {
 	# nameref.
 	# see https://github.com/bahamas10/bash-jsonvar/issues/6
 	local _jv_attrs
-	read -r _ _jv_attrs _ < <(declare -p -- "$_jv_name")
+	IFS=' ' read -r _ _jv_attrs _ < <(declare -p -- "$_jv_name")
 
 	case "$_jv_attrs" in
 		*n*) # process namerefs
