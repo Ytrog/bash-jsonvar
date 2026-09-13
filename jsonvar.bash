@@ -296,5 +296,8 @@ else
 	test_bad_octal='08'
 	declare -i test_bad_octal
 
+	test_big_int=99999999999999999999999
+	declare -i test_big_int
+
 	jsonvar "$@"
 fi
