@@ -100,7 +100,7 @@ _jv-encode-variable() {
 	# nameref.
 	# see https://github.com/bahamas10/bash-jsonvar/issues/6
 	local _jv_attrs
-	read -r _ _jv_attrs _ < <(declare -p "$_jv_name")
+	read -r _ _jv_attrs _ < <(declare -p -- "$_jv_name")
 
 	case "$_jv_attrs" in
 		*n*) # process namerefs
@@ -205,7 +205,7 @@ jsonvar() {
 			fi
 
 			# check to make sure the variable is defined
-			if ! declare -p "$_jv_key" &>/dev/null; then
+			if ! declare -p -- "$_jv_key" &>/dev/null; then
 				echo "[error] variable '$_jv_key' not defined" >&2
 				_jv_error='true'
 			fi
