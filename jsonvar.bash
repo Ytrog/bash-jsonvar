@@ -76,13 +76,19 @@ _jv-json-encode-number() {
 	local num=$1
 	local re='^-?([0-9]+)$'
 
-	# validate that it is a valid number
-	if [[ $num =~ $re ]]; then
-		printf '%d' "$num"
-	else
-		# perhaps print a warning to the screen?
+	# make sure it walks like a duck
+	if ! [[ $num =~ $re ]]; then
 		printf 'null'
+		return
 	fi
+
+	# make sure it quacks like a duck
+	if ! printf -v num '%d' "$num"; then
+		printf 'null'
+		return
+	fi
+
+	printf '%s' "$num"
 }
 
 _jv-encode-variable() {
@@ -286,6 +292,9 @@ else
 	declare -i test_bad_int
 
 	declare -n test_nameref='test_indexed'
+
+	test_bad_octal='08'
+	declare -i test_bad_octal
 
 	jsonvar "$@"
 fi
