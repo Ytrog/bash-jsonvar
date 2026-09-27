@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+. ./jsonvar.bash
+printf -v v 'a\xffb'
+jsonvar -v v
