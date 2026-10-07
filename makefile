@@ -1,0 +1,2 @@
+tags: jsonvar.bash
+	ctags $^
